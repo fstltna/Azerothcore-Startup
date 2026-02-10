@@ -1,0 +1,108 @@
+#!/usr/bin/perl
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 1, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+my $AZEROTHDIR = "/home/wowowner/azerothcore";
+
+my $Command = $ARGV[0];
+if ($Command eq "")
+{
+	$Command = "NONE";
+}
+
+my $worldrunning=`ps ax|grep worldserver|grep -v grep`;
+my $authrunning=`ps ax|grep authserver|grep -v grep`;
+
+if ($Command eq "start")
+{
+	if ($worldrunning eq "")
+	{
+		print "Starting WorldServer...\n";
+		if (-f "$AZEROTHDIR/nostart")
+		{
+			print "Removing $AZEROTHDIR/nostart\n";
+			# Remove the lock file if it exists
+			unlink("$AZEROTHDIR/nostart");
+		}
+		# Start the screen process
+		system("nohup $AZEROTHDIR/startazerothworld > /tmp/AzerothWorldStartup.log\&");
+	}
+	if ($authrunning eq "")
+	{
+		print "Starting AuthServer...\n";
+		if (-f "$AZEROTHDIR/nostart")
+		{
+			print "Removing $AZEROTHDIR/nostart\n";
+			# Remove the lock file if it exists
+			unlink("$AZEROTHDIR/nostart");
+		}
+		# Start the screen process
+		system("nohup $AZEROTHDIR/startazerothcore > /tmp/AzerothWorldStartup.log\&");
+	}
+}
+elsif ($Command eq "stop")
+{
+	print "Stopping AzerothCore processes...\n";
+	system("touch '$AZEROTHDIR/nostart'");
+	if ($worldrunning ne "")
+	{
+		# World Server process is running, kill it
+		system("killall worldserver");
+	}
+	if ($authrunning ne "")
+	{
+		# Auth Server process is running, kill it
+		system("killall authserver");
+	}
+}
+elsif ($Command eq "restart")
+{
+	if (-f "$AZEROTHDIR/nostart")
+	{
+		print("Removing $AZEROTHDIR/nostart\n");
+		unlink("$AZEROTHDIR/nostart");
+	}
+	if ($running ne "")
+	{
+		system("killall java");
+	}
+}
+elsif ($Command eq "status")
+{
+	if ($worldrunning ne "")
+	{
+		print("World Server Running\n");
+	}
+	else
+	{
+		print("World Server Not Running\n");
+	}
+	if ($authrunning ne "")
+	{
+		print("Auth Server Running\n");
+	}
+	else
+	{
+		print("Auth Server Not Running\n");
+	}
+}
+else
+{
+	print ("Uknown command '$Command'\n");
+	print ("Usage: $0 {start|status|stop|restart}\n");
+	exit(1);
+}
+
+exit(0);
