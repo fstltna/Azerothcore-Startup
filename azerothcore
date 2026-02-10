@@ -48,8 +48,7 @@ if ($Command eq "start")
 			# Remove the lock file if it exists
 			unlink("$AZEROTHDIR/nostart");
 		}
-		# Start the screen process
-		system("nohup $AZEROTHDIR/startazerothcore > /tmp/AzerothWorldStartup.log\&");
+		system("nohup $AZEROTHDIR/startazerothcore > /tmp/AzerothAuthStartup.log\&");
 	}
 }
 elsif ($Command eq "stop")
@@ -74,9 +73,13 @@ elsif ($Command eq "restart")
 		print("Removing $AZEROTHDIR/nostart\n");
 		unlink("$AZEROTHDIR/nostart");
 	}
-	if ($running ne "")
+	if ($worldrunning ne "")
 	{
-		system("killall java");
+		system("killall worldserver");
+	}
+	if ($authrunning ne "")
+	{
+		system("killall authserver");
 	}
 }
 elsif ($Command eq "status")
